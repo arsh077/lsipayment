@@ -10,9 +10,13 @@ interface AppState {
   employeeSales: EmployeeSale[];
   employees: Employee[];
   isLoading: boolean;
+  isFormOpen: boolean;
   
   setUser: (user: User | null) => void;
   fetchInitialData: () => Promise<void>;
+  setFormOpen: (open: boolean) => void;
+  
+  addUnifiedSale: (data: any) => Promise<void>;
   
   addMainSale: (sale: Omit<MainSale, 'id'>) => Promise<void>;
   updateMainSale: (id: string, sale: Partial<MainSale>) => Promise<void>;
@@ -39,8 +43,10 @@ export const useStore = create<AppState>()(
         { id: '2', name: 'Deepali Kulshrestha', role: 'Sales Manager' },
       ],
       isLoading: false,
+      isFormOpen: false,
 
       setUser: (user) => set({ user }),
+      setFormOpen: (open) => set({ isFormOpen: open }),
 
       fetchInitialData: async () => {
         if (!get().user) return; // Only fetch if user is logged in
@@ -62,6 +68,42 @@ export const useStore = create<AppState>()(
         } catch (error) {
           console.error("Error fetching initial data:", error);
           set({ isLoading: false });
+        }
+      },
+
+      addUnifiedSale: async (data: any) => {
+        set({ isLoading: true });
+        try {
+          // 1. Add to Main Sales (Master Log)
+          await firestore.addMainSale({
+            customerName: data.customerName,
+            number: data.number,
+            amount: Number(data.amount),
+            feedback: data.feedback || '',
+            date: new Date(data.date).toISOString()
+          });
+
+          // 2. If Employee Name is provided, ALSO add to Employee Sales
+          if (data.employeeName && data.employeeName !== '') {
+            await firestore.addEmployeeSale({
+              employeeName: data.employeeName,
+              leadName: data.customerName,
+              number: data.number,
+              amount: Number(data.amount),
+              feedbackDuration: data.feedback || '',
+              paymentStatus: data.paymentStatus || 'Full',
+              dueAmount: Number(data.dueAmount) || 0,
+              date: new Date(data.date).toISOString()
+            });
+          }
+
+          // Refresh everything
+          await get().fetchInitialData();
+          set({ isFormOpen: false, isLoading: false });
+        } catch (error) {
+          console.error("Error adding unified sale:", error);
+          set({ isLoading: false });
+          throw error;
         }
       },
       

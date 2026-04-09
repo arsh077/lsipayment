@@ -1,12 +1,12 @@
 import React from 'react';
-import { Download, ShieldAlert, LogOut } from 'lucide-react';
+import { Download, ShieldAlert, LogOut, PlusCircle } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import Papa from 'papaparse';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 
 export function Header() {
-  const { mainSales, employeeSales, user } = useStore();
+  const { mainSales, employeeSales, setFormOpen } = useStore();
 
   const handleLogout = async () => {
     try {
@@ -70,6 +70,14 @@ export function Header() {
       </div>
       
       <div className="flex items-center gap-4">
+        <button 
+          onClick={() => setFormOpen(true)}
+          className="flex bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all items-center gap-2 shadow-lg shadow-primary/25"
+        >
+          <PlusCircle className="w-5 h-5" />
+          New Sale
+        </button>
+
         <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
           <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
           <span className="text-sm text-gray-700 font-medium">Admin Access</span>

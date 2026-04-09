@@ -9,6 +9,7 @@ import { BottomNav, TabType } from './components/navigation/BottomNav';
 import { MobileReports } from './components/dashboard/MobileReports';
 import { useStore } from './store/useStore';
 import { Login } from './components/auth/Login';
+import { UnifiedSalesForm } from './components/dashboard/UnifiedSalesForm';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import { Loader2 } from 'lucide-react';
@@ -75,6 +76,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto pb-24 md:pb-8">
+      <UnifiedSalesForm />
       <Header />
       
       {/* Desktop Layout (Always visible on md and up) */}
