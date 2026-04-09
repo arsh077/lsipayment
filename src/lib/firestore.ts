@@ -75,3 +75,15 @@ export const getEmployees = async () => {
   const querySnapshot = await getDocs(collection(db, COLLECTIONS.EMPLOYEES));
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Employee[];
 };
+
+export const deleteAllData = async () => {
+  const mainSnapshot = await getDocs(collection(db, COLLECTIONS.MAIN_SALES));
+  for (const document of mainSnapshot.docs) {
+    await deleteDoc(doc(db, COLLECTIONS.MAIN_SALES, document.id));
+  }
+  
+  const empSnapshot = await getDocs(collection(db, COLLECTIONS.EMPLOYEE_SALES));
+  for (const document of empSnapshot.docs) {
+    await deleteDoc(doc(db, COLLECTIONS.EMPLOYEE_SALES, document.id));
+  }
+};
