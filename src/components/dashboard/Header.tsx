@@ -92,19 +92,6 @@ export function Header() {
         </button>
 
         <button 
-          onClick={() => {
-            if (window.confirm('Are you sure you want to delete ALL dump sales data? This cannot be undone.')) {
-              useStore.getState().deleteAllDumpData();
-            }
-          }}
-          className="hidden md:flex bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors items-center gap-2 border border-red-200"
-          title="Clear Database"
-        >
-          <ShieldAlert className="w-4 h-4" />
-          Clear DB
-        </button>
-
-        <button 
           onClick={handleLogout}
           className="flex bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors items-center gap-2 border border-red-100"
           title="Sign Out"

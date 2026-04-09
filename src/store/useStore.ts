@@ -30,7 +30,6 @@ interface AppState {
   
   importMainSales: (sales: Omit<MainSale, 'id'>[]) => Promise<void>;
   importEmployeeSales: (sales: Omit<EmployeeSale, 'id'>[]) => Promise<void>;
-  deleteAllDumpData: () => Promise<void>;
 }
 
 export const useStore = create<AppState>()(
@@ -174,18 +173,6 @@ export const useStore = create<AppState>()(
           await firestore.addEmployeeSale(sale);
         }
         await get().fetchInitialData();
-      },
-      
-      deleteAllDumpData: async () => {
-        set({ isLoading: true });
-        try {
-          await firestore.deleteAllData();
-          await get().fetchInitialData();
-          set({ isLoading: false });
-        } catch (error) {
-          console.error("Error deleting dump data", error);
-          set({ isLoading: false });
-        }
       },
     }),
     {
