@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store/useStore';
-import { X, Save, User, Phone, IndianRupee, MessageSquare, Calendar, Loader2 } from 'lucide-react';
+import { X, Save, User, Phone, IndianRupee, MessageSquare, Calendar, Loader2, UserPlus } from 'lucide-react';
 import { Card } from '../ui/Card';
 
 export function UnifiedSalesForm() {
-  const { isFormOpen, setFormOpen, addUnifiedSale, employees, isLoading } = useStore();
+  const { isFormOpen, setFormOpen, addUnifiedSale, addEmployee, employees, isLoading } = useStore();
   
+  const [addingNewEmployee, setAddingNewEmployee] = useState(false);
+  const [newEmployeeName, setNewEmployeeName] = useState('');
+  const [savingEmployee, setSavingEmployee] = useState(false);
+
   const [formData, setFormData] = useState({
     customerName: '',
     number: '',
@@ -18,6 +22,22 @@ export function UnifiedSalesForm() {
   });
 
   if (!isFormOpen) return null;
+
+  const handleAddNewEmployee = async () => {
+    const name = newEmployeeName.trim();
+    if (!name) return;
+    setSavingEmployee(true);
+    try {
+      await addEmployee({ name, role: 'Sales Executive' });
+      setFormData({ ...formData, employeeName: name });
+      setNewEmployeeName('');
+      setAddingNewEmployee(false);
+    } catch {
+      alert("Error adding employee. Please try again.");
+    } finally {
+      setSavingEmployee(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,14 +131,52 @@ export function UnifiedSalesForm() {
                 </label>
                 <select
                   value={formData.employeeName}
-                  onChange={(e) => setFormData({ ...formData, employeeName: e.target.value })}
+                  onChange={(e) => {
+                    if (e.target.value === '__add_new__') {
+                      setAddingNewEmployee(true);
+                    } else {
+                      setFormData({ ...formData, employeeName: e.target.value });
+                    }
+                  }}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                 >
                   <option value="">No Employee (Direct Sale)</option>
                   {employees.map(emp => (
                     <option key={emp.id} value={emp.name}>{emp.name}</option>
                   ))}
+                  <option value="__add_new__">+ Add New Employee</option>
                 </select>
+
+                {addingNewEmployee && (
+                  <div className="flex gap-2 mt-2 animate-in slide-in-from-top-2 duration-200">
+                    <input
+                      autoFocus
+                      type="text"
+                      placeholder="Employee name"
+                      value={newEmployeeName}
+                      onChange={(e) => setNewEmployeeName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNewEmployee())}
+                      className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddNewEmployee}
+                      disabled={savingEmployee || !newEmployeeName.trim()}
+                      className="flex items-center gap-1 bg-primary text-white px-3 py-2 rounded-xl text-sm font-medium disabled:opacity-60"
+                    >
+                      {savingEmployee ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setAddingNewEmployee(false); setNewEmployeeName(''); }}
+                      className="p-2 rounded-xl border border-gray-200 hover:bg-gray-100"
+                    >
+                      <X className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
+                )}
+
                 <p className="text-[10px] text-gray-400 mt-1 italic">
                   * If selected, this will also show in Employee Sales table
                 </p>
